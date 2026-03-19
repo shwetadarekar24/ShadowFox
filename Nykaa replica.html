@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nykaa Realistic Clone</title>
+<style>
+body{font-family:Arial;margin:0;background:#fff;}
+header{background:#ff3f6c;color:white;padding:12px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-size:22px;font-weight:bold;}
+header input{padding:8px;width:220px;border-radius:5px;border:none;}
+nav span{margin:0 10px;cursor:pointer;font-weight:bold;}
+.banner{height:260px;background:url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9') center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:white;font-size:30px;font-weight:bold;}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;padding:20px;}
+.card{background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:.3s;cursor:pointer;}
+.card:hover{transform:translateY(-5px);}
+.card img{width:100%;height:240px;object-fit:cover;}
+.card-content{padding:10px;}
+.brand{font-weight:bold;}
+.price{color:#ff3f6c;}
+.old{color:gray;text-decoration:line-through;font-size:12px;}
+button{background:#ff3f6c;color:white;border:none;padding:8px;width:100%;border-radius:5px;cursor:pointer;margin-top:5px;}
+.cart{position:fixed;right:0;top:0;width:280px;height:100%;background:white;padding:15px;box-shadow:-2px 0 5px rgba(0,0,0,0.2);overflow:auto;}
+.checkout,.product-page{position:fixed;top:10%;left:30%;width:40%;background:white;padding:20px;display:none;box-shadow:0 0 10px rgba(0,0,0,0.3);} 
+.slider{display:flex;overflow:auto;gap:10px;padding:10px;}
+.slider img{height:120px;border-radius:10px;}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">NYKAA</div>
+<nav>
+<span onclick="filter('all')">All</span>
+<span onclick="filter('makeup')">Makeup</span>
+<span onclick="filter('skin')">Skin</span>
+<span onclick="filter('hair')">Hair</span>
+</nav>
+<input type="text" placeholder="Search" onkeyup="search(this.value)">
+</header>
+
+<div class="banner">Beauty Sale 50% OFF 💄</div>
+
+<div class="slider">
+<img src="https://images.unsplash.com/photo-1585386959984-a415522316b3">
+<img src="https://images.unsplash.com/photo-1601049676869-702ea24cfd58">
+<img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348">
+</div>
+
+<div class="products" id="products"></div>
+
+<div class="cart">
+<h3>Cart</h3>
+<ul id="cartItems"></ul>
+<h4 id="total">₹0</h4>
+<button onclick="checkout()">Checkout</button>
+</div>
+
+<div class="checkout" id="checkout"></div>
+<div class="product-page" id="productPage"></div>
+
+<script>
+let data=[
+{id:1,name:'Lipstick',brand:'Lakme',price:499,old:799,cat:'makeup',img:'https://images.unsplash.com/photo-1586495777744-4413f21062fa'},
+{id:2,name:'Serum',brand:'Minimalist',price:799,old:1200,cat:'skin',img:'https://images.unsplash.com/photo-1601049676869-702ea24cfd58'},
+{id:3,name:'Shampoo',brand:'Loreal',price:599,old:899,cat:'hair',img:'https://images.unsplash.com/photo-1612817288484-6f916006741a'},
+{id:4,name:'Foundation',brand:'Maybelline',price:699,old:999,cat:'makeup',img:'https://images.unsplash.com/photo-1596462502278-27bfdc403348'}
+];
+let cart=[];
+
+function show(list){
+let html='';
+list.forEach(p=>{
+html+=`<div class='card' onclick='openProduct(${p.id})'>
+<img src='${p.img}'>
+<div class='card-content'>
+<div class='brand'>${p.brand}</div>
+<div>${p.name}</div>
+<div class='price'>₹${p.price} <span class='old'>₹${p.old}</span></div>
+<button onclick='event.stopPropagation();add(${p.id})'>Add to Bag</button>
+</div></div>`;
+});
+document.getElementById('products').innerHTML=html;
+}
+
+function filter(c){
+if(c==='all') show(data);
+else show(data.filter(p=>p.cat===c));
+}
+
+function search(q){
+show(data.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())));
+}
+
+function add(id){
+let item=data.find(p=>p.id===id);
+cart.push(item);
+update();
+}
+
+function update(){
+let t=0,html='';
+cart.forEach(i=>{t+=i.price; html+=`<li>${i.name} ₹${i.price}</li>`});
+document.getElementById('cartItems').innerHTML=html;
+document.getElementById('total').innerText='₹'+t;
+}
+
+function checkout(){
+let t=0; cart.forEach(i=>t+=i.price);
+document.getElementById('checkout').style.display='block';
+document.getElementById('checkout').innerHTML=`
+<h3>Checkout</h3>
+<p>Total: ₹${t}</p>
+<input placeholder='Address'><br><br>
+<button onclick='place()'>Place Order</button>`;
+}
+
+function place(){
+alert('Order Placed ✅'); cart=[]; update();
+document.getElementById('checkout').style.display='none';
+}
+
+function openProduct(id){
+let p=data.find(x=>x.id===id);
+document.getElementById('productPage').style.display='block';
+document.getElementById('productPage').innerHTML=`
+<h2>${p.brand}</h2>
+<img src='${p.img}' style='width:100%'>
+<p>${p.name}</p>
+<h3>₹${p.price}</h3>
+<button onclick='add(${p.id})'>Add to Bag</button>
+<button onclick="document.getElementById('productPage').style.display='none'">Close</button>`;
+}
+
+show(data);
+</script>
+
+</body>
+</html>
