@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <h2>Student Manager</h2>
+  <div>
+    <button id="themeToggle">🌙</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
+</nav>
+
+<div id="authContainer" class="card container">
+  <h2>Login / Signup</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button id="signupBtn">Signup</button>
+  <button id="loginBtn">Login</button>
+  <p id="authMsg"></p>
+</div>
+
+<div id="dashboard" class="container hidden">
+  <div class="card">
+    <input id="name" placeholder="Name">
+    <input id="age" type="number" placeholder="Age">
+    <input id="course" placeholder="Course">
+    <button id="addBtn">Add Student</button>
+  </div>
+
+  <input id="search" placeholder="Search">
+
+  <div id="studentList" class="grid"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
