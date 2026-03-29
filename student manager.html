@@ -1,10 +1,70 @@
-#index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Student Manager</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Student Manager</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f6f9;
+}
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  background:#2563eb;
+  color:white;
+}
+.container{
+  max-width:800px;
+  margin:30px auto;
+}
+.card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+}
+input,button{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+}
+button{
+  background:#2563eb;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+button:hover{
+  opacity:0.9;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:10px;
+}
+.student{
+  background:white;
+  padding:10px;
+  border-radius:8px;
+}
+.hidden{display:none;}
+.dark{
+  background:#111;
+  color:white;
+}
+.dark .card,
+.dark .student{
+  background:#1f2937;
+}
+.dark input{
+  background:#374151;
+  color:white;
+}
+</style>
+
 </head>
 <body>
 
@@ -38,8 +98,165 @@
   <div id="studentList" class="grid"></div>
 </div>
 
-<script src="script.js"></script>
+<script>
+// ELEMENTS
+const authContainer = document.getElementById("authContainer");
+const dashboard = document.getElementById("dashboard");
+
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const authMsg = document.getElementById("authMsg");
+
+const nameInput = document.getElementById("name");
+const ageInput = document.getElementById("age");
+const courseInput = document.getElementById("course");
+
+const studentList = document.getElementById("studentList");
+const search = document.getElementById("search");
+
+// DATA
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let students = JSON.parse(localStorage.getItem("students")) || [];
+let currentUser = localStorage.getItem("currentUser");
+
+// AUTH
+document.getElementById("signupBtn").onclick = () => {
+  let u = username.value.trim();
+  let p = password.value.trim();
+
+  if(!u || !p){
+    authMsg.innerText = "Fill all fields";
+    return;
+  }
+
+  users.push({username:u, password:p});
+  localStorage.setItem("users", JSON.stringify(users));
+  authMsg.innerText = "Signup successful";
+};
+
+document.getElementById("loginBtn").onclick = () => {
+  let u = username.value;
+  let p = password.value;
+
+  let user = users.find(x => x.username === u && x.password === p);
+
+  if(!user){
+    authMsg.innerText = "Invalid credentials";
+    return;
+  }
+
+  localStorage.setItem("currentUser", u);
+  showDashboard();
+};
+
+// DASHBOARD
+function showDashboard(){
+  authContainer.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  render();
+}
+
+// ADD
+document.getElementById("addBtn").onclick = () => {
+  let n = nameInput.value.trim();
+  let a = ageInput.value;
+  let c = courseInput.value.trim();
+
+  if(!n || !a || !c){
+    alert("Fill all fields");
+    return;
+  }
+
+  students.push({
+    id: Date.now(),
+    name: n,
+    age: a,
+    course: c,
+    attendance: 0
+  });
+
+  localStorage.setItem("students", JSON.stringify(students));
+
+  nameInput.value = "";
+  ageInput.value = "";
+  courseInput.value = "";
+
+  render();
+};
+
+// DELETE
+function deleteStudent(id){
+  students = students.filter(s => s.id !== id);
+  localStorage.setItem("students", JSON.stringify(students));
+  render();
+}
+
+// EDIT
+function editStudent(id){
+  let s = students.find(x => x.id === id);
+
+  let newName = prompt("Enter Name", s.name);
+  let newAge = prompt("Enter Age", s.age);
+  let newCourse = prompt("Enter Course", s.course);
+
+  if(newName && newAge && newCourse){
+    s.name = newName;
+    s.age = newAge;
+    s.course = newCourse;
+
+    localStorage.setItem("students", JSON.stringify(students));
+    render();
+  }
+}
+
+// ATTENDANCE
+function markAttendance(id){
+  let s = students.find(x => x.id === id);
+  s.attendance++;
+
+  localStorage.setItem("students", JSON.stringify(students));
+  render();
+}
+
+// RENDER
+function render(){
+  let val = search.value.toLowerCase();
+  studentList.innerHTML = "";
+
+  students
+    .filter(s => s.name.toLowerCase().includes(val))
+    .forEach(s => {
+      studentList.innerHTML += `
+        <div class="student">
+          <h3>${s.name}</h3>
+          <p>Age: ${s.age}</p>
+          <p>Course: ${s.course}</p>
+          <p>Attendance: ${s.attendance}</p>
+          <button onclick="markAttendance(${s.id})">Attendance</button>
+          <button onclick="editStudent(${s.id})">Edit</button>
+          <button onclick="deleteStudent(${s.id})">Delete</button>
+        </div>
+      `;
+    });
+}
+
+// EVENTS
+search.onkeyup = render;
+
+document.getElementById("themeToggle").onclick = () => {
+  document.body.classList.toggle("dark");
+};
+
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.removeItem("currentUser");
+  location.reload();
+};
+
+// AUTO LOGIN
+if(currentUser){
+  showDashboard();
+}
+</script>
+
 </body>
 </html>
-
-
